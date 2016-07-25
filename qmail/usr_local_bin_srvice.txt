@@ -1,0 +1,63 @@
+#!/bin/sh
+
+# This is the qmailctl script from http://lifewithqmail.org (2.8.2.1.)
+# with minor changes for debian. <pape@smarden.org>
+
+# For Red Hat chkconfig
+# chkconfig: - 30 80
+# description: the qmail MTA
+
+PATH=/command:/var/qmail/bin:/usr/local/bin:/usr/local/sbin:/bin:/sbin:/usr/bin:/usr/sbin
+export PATH
+
+case "$2" in
+  start)
+    echo "Starting $1"
+    if svok /etc/service/$1 ; then
+      svc -u /etc/service/$1
+    else
+      echo $1 service not running
+    fi
+    ;;
+  stop)
+    echo "Stopping $1..."
+    echo "  $1"
+    svc -d /etc/service/$1
+    ;;
+  stat)
+    svstat /etc/service/$1
+    svstat /etc/service/$1/log
+    ;;
+  reload|hup)
+    echo "Sending HUP signal to $1."
+    svc -h /etc/service/$1
+    ;;
+  pause)
+    echo "Pausing $1"
+    svc -p /etc/service/$1
+    ;;
+  cont)
+    echo "Continuing $1"
+    svc -c /etc/service/$1
+    ;;
+  restart|force-reload)
+    echo "Restarting $1:"
+    echo "* Stopping $1."
+    svc -d /etc/service/$1
+    echo "* Restarting $1."
+    svc -u /etc/service/$1
+    ;;
+  restart-log)
+    echo "Restarting $1/log:"
+    echo "* Stopping $1/log."
+    svc -d /etc/service/$1/log
+    echo "* Restarting $1/log."
+    svc -u /etc/service/$1/log
+    ;;
+  *)
+    echo "Usage: $0 service {start|stop|restart|doqueue|flush|reload|stat|pause|cont|cdb|queue|help}"
+    exit 1
+    ;;
+esac
+
+exit 0
