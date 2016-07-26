@@ -1,0 +1,45 @@
+#!/bin/sh
+#
+# onchange
+# John Simpson <jms1@jms1.net> 2006-05-08
+#
+# 2007-08-18 jms1 - fixed quoting when passing data to the named pipe. see
+#   http://sourceforge.net/tracker/index.php?func=detail&aid=1750489&group_id=85937&atid=577798
+#
+#   also changed license from "gpl 2 only" to "gpl 2 or 3 only". i still
+#   don't trust the "or any later version" language that most people throw
+#   in there, i prefer to see what those future versions look like before
+#   i start using them to release my code.
+#
+###############################################################################
+#
+# Copyright (C) 2006,2007 John Simpson.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 or version 3 of the
+# license, at your option.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+###############################################################################
+
+PATH="/usr/bin:/bin:/home/vpopmail/bin"
+SKEL="/home/vpopmail/skel/Maildir/"
+
+# Copy SKEL to new user
+if [ "${1:-}" = "add_user" ]
+then
+    DIR=`vuserinfo -d ${2:?No email address specified}`
+    cp -Rp "$SKEL" "$DIR"
+fi
+
+# Always update-qmail
+logger -t onchange "$*"
+echo onchange "$@" > /tmp/update-qmail
