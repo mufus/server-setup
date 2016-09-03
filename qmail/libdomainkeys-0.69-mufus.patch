@@ -1,0 +1,4 @@
+6c6
+< LIBS=-L. -ldomainkeys -lcrypto
+---
+> LIBS=-L. -ldomainkeys -lcrypto -lresolv
