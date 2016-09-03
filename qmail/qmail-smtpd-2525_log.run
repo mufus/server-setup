@@ -1,2 +1,2 @@
 #!/bin/sh
-exec /usr/local/bin/setuidgid qmaill /usr/local/bin/multilog t n30 s10485760 /var/log/qmail/smtpd-2525
+exec /usr/bin/setuidgid qmaill /usr/bin/multilog t n30 s10485760 /var/log/qmail/smtpd-2525
