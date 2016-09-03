@@ -1,4 +1,11 @@
-6c6
-< LIBS=-L. -ldomainkeys -lcrypto
----
-> LIBS=-L. -ldomainkeys -lcrypto -lresolv
+--- Makefile_orig       2016-09-03 17:31:33.471530418 +0200
++++ Makefile    2016-09-03 17:31:42.435620593 +0200
+@@ -3,7 +3,7 @@
+ #CFLAGS += -DDK_DEBUG -DDK_HASH_BUFF -Wall
+ #CFLAGS += -DUNIXWARE
+ INCS=-I.
+-LIBS=-L. -ldomainkeys -lcrypto
++LIBS=-L. -ldomainkeys -lcrypto -lresolv
+ MAKE=make
+ 
+ dktest: dktest.o libdomainkeys.a dns.lib socket.lib
