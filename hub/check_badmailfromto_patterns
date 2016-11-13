@@ -1,0 +1,67 @@
+=pod
+
+=head1 NAME
+
+check_badmailfromto_patterns - checks the badmailfromto_patterns config
+
+=head1 DESCRIPTION
+
+Based on a mix of check_badmailfromto and badmailfrom_patterns.
+
+=head1 AUTHOR
+
+Copyright 2016 Magnus Johansson <hello@mufus.com>
+
+This software is free software and may be distributed under the same
+terms as qpsmtpd itself.
+
+=cut
+
+
+use experimental 'smartmatch';
+
+sub hook_mail {
+  my ($self, $transaction, $sender, %param) = @_;
+
+  my @badmailfromto = $self->qp->config("badmailfromto_patterns")
+    or return (DECLINED);
+
+  return (DECLINED) if ($sender->format eq "<>");
+
+  my $host = lc $sender->host;
+  my $from = lc($sender->user) . '@' . $host;
+  my $matched_patterns = '';
+
+  for (@badmailfromto) {
+      my ($pattern) = m/^\s*(\S+)\s+(\S+).*/;
+      next unless $from =~ /$pattern/;
+      $matched_patterns .= "$pattern\t";
+  }
+
+  $matched_patterns =~ s/\s+$// if ($matched_patterns);
+  $transaction->notes('badmailfromto_patterns', $matched_patterns)
+    if ($matched_patterns);
+
+  return (DECLINED);
+}
+
+sub hook_rcpt {
+  my ($self, $transaction, $rcpt, %param) = @_;
+  my $recipient = lc($rcpt->user) . '@' . lc($rcpt->host);
+  my $sender_patterns = $transaction->notes('badmailfromto_patterns');
+  if ($sender_patterns) {
+    my @sender_patterns = split('\t', $sender_patterns);
+
+    my @badmailfromto = $self->qp->config("badmailfromto_patterns")
+      or return (DECLINED);
+
+    for (@badmailfromto) {
+      my ($from, $to, $response) = m/^\s*(\S+)\s+(\S+)(.*)/;
+      $response = "mail to $recipient not accepted here"
+        unless $response =~ s/^\s+|\s+$//g;
+      return (DENY, $response)
+        if $from ~~ @sender_patterns and lc($to) eq $recipient;
+    }
+  }
+  return (DECLINED);
+}
