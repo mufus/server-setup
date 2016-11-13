@@ -1,0 +1,64 @@
+#!/bin/sh
+#
+# update-files
+# John Simpson <jms1@jms1.net> 2006-02-15
+#
+# reads incoming data and saves it to one of a set of known filenames
+# then runs additional commands based on which file was received
+#
+###############################################################################
+#
+# Copyright (C) 2006 John Simpson.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License, version 2, as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# or visit http://www.gnu.org/licenses/gpl.txt
+#
+###############################################################################
+
+PATH="/usr/bin:/bin:/usr/local/bin"
+
+# if variable not set, $file will contain an empty string
+file=${SSH_ORIGINAL_COMMAND:-}
+
+# these files are all handled by:
+# - writing to a temp file
+# - chmod to make world readable
+# - rename to the real name
+
+if [       "$file" = "validrcptto.cdb" \
+    -o "$file" = "morercpthosts" \
+    -o "$file" = "rcpthosts" \
+    -o "$file" = "morercpthosts.cdb" \
+    -o "$file" = "smtproutes" ]
+then
+    logger -t update-files "$TCPREMOTEIP updating $file"
+
+    echo Saving incoming data to $file.new
+    cat > $file.new
+
+    echo Setting permissions
+    chmod 644 $file.new
+
+    echo Renaming $file.new to $file
+    mv $file.new $file
+
+    exit 0
+fi
+
+# unknown command - either it's a bug or a security violation
+# either way, it needs to be logged
+
+logger -t update-files "$TCPREMOTEIP sent invalid command '$file'"
+echo Invalid command, this incident has been reported
+exit 1
