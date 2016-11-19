@@ -40,7 +40,11 @@ if [       "$file" = "validrcptto.cdb" \
     -o "$file" = "morercpthosts" \
     -o "$file" = "rcpthosts" \
     -o "$file" = "morercpthosts.cdb" \
-    -o "$file" = "smtproutes" ]
+    -o "$file" = "smtproutes" \
+    -o "$file" = "qpsmtpd.badmailfrom" \
+    -o "$file" = "qpsmtpd.badmailfromto_patterns" \
+    -o "$file" = "qpsmtpd.dnsbl_zones" \
+    -o "$file" = "qpsmtpd.uribl_zones" ]
 then
     logger -t update-files "$TCPREMOTEIP updating $file"
 
