@@ -310,7 +310,7 @@ diff -Naur qmail-1.03.orig/qmail-remote.c qmail-1.03/qmail-remote.c
 +
 +  if (from && selector) {
 +    if(!stralloc_copys(&dksig,
-+        "Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys\r\n"
++        //"Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys\r\n"
 +        "DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;\r\n"
 +        "\ts=")) temp_nomem();
 +    if(!stralloc_cats(&dksig, selector)) temp_nomem();
@@ -378,8 +378,8 @@ diff -Naur qmail-1.03.orig/qmail-remote.c qmail-1.03/qmail-remote.c
 +    maybe_die_dkim(dkimst);
 +    DKIMSignFree( &dkim );
 +
-+    substdio_puts(&smtpto,
-+      "Comment: DKIM? See http://www.dkim.org\r\n");
++    //substdio_puts(&smtpto,
++    //  "Comment: DKIM? See http://www.dkim.org\r\n");
 +    substdio_puts(&smtpto, szSignature);
 +    substdio_puts(&smtpto, "\r\n");
 +
