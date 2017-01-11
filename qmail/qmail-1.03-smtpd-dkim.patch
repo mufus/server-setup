@@ -1,0 +1,56 @@
+*** qmail-smtpd.c       2014-03-17 13:58:06.000000000 +0900
+--- ../../qmail.spf.dkim/qmail-1.03/qmail-smtpd.c       2014-03-17 23:04:04.000000000 +0900
+***************
+*** 303,308 ****
+--- 303,309 ----
+  stralloc spfguess = {0};
+  stralloc spfexp = {0};
+  int spf_log = 0;
++ int dkverify_log = 0;
+  int help_version = 0;
+ 
+  void smtp_greet(code) char *code;
+***************
+*** 403,408 ****
+--- 404,412 ----
+    x = env_get("SPF_LOG");
+    if(x) { scan_ulong(x,&u); spf_log = (int) u; }
+ 
++   x = env_get("DKVERIFY_LOG");
++   if(x) { scan_ulong(x,&u); dkverify_log = (int) u; }
++
+    x = env_get("RELAYREJ");
+    if(x) { scan_ulong(x,&u); relayrej = (int) u; }
+ 
+***************
+*** 1347,1352 ****
+--- 1351,1357 ----
+      maybe_die_dk(dkst);
+      dkimst = DKIMVerifyResults(&dkim);
+ 
++     dkstatus = "none (no signature)";
+      switch(dkst) {
+      case DK_STAT_OK:         dkstatus = "pass (ok)";                  break;
+      case DK_STAT_BADSIG:     dkstatus = "fail (bad sig)";             break;
+***************
+*** 1415,1420 ****
+--- 1420,1427 ----
+      qmail_puts(&qqt, dkimstatus);
+      qmail_puts(&qqt, "\n");
+ 
++     if (dkverify_log) { strerr_warn7(title.s, "Authentication-Results: ", (hostname ? hostname : "localhost"), "; domainkeys=", dkstatus, "; dkim=", dkimstatus,0); }
++
+ 
+      for (;;) {
+        r = substdio_get(&tempio,&ch,1);
+***************
+*** 1910,1915 ****
+--- 1917,1923 ----
+        if (!env_put2("TCPREMOTEINFO",remoteinfo)) die_nomem();
+        if (!env_unset("SMTP_AUTH_USER")) die_read();
+        if (!env_put2("SMTP_AUTH_USER",remoteinfo)) die_nomem();
++       if (!env_put2("RELAYCLIENT",relayclient)) die_nomem();
+        out("235 ok, go ahead (#2.0.0)\r\n");
+        break;
+      case 1:
+
