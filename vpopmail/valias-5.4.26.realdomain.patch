@@ -1,0 +1,30 @@
+--- vpopmail-5.4.26/valias.c	2007-05-22 06:58:59.000000000 +0300
++++ vpopmail-5.4.26-patched/valias.c	2008-10-06 18:13:46.000000000 +0300
+@@ -52,6 +52,7 @@
+ int main(int argc, char *argv[])
+ {
+  char *tmpalias;
++ domain_entry *entry;
+ 
+     if( vauth_open( 1 )) {
+         vexiterror( stderr, "Initial open." );
+@@ -64,7 +65,18 @@
+ 		/* did the user nominate an email address or a domain? */
+ 		if ( strstr(Email, "@") == NULL ) {
+ 			/* display all aliases for domain */
+-			tmpalias = valias_select_all( Alias, Email );
++			entry = get_domain_entries( Email );
++			if (entry==NULL) {
++				if( verrori ) {
++					printf("Can't get domain entries - %s\n", verror( verrori ));
++					vexit(verrori);
++				} else {
++					printf("Invalid domain name\n");
++					vexit(VA_DOMAIN_DOES_NOT_EXIST);
++				}
++			}
++
++			tmpalias = valias_select_all( Alias, entry->realdomain );
+ 			if (tmpalias == NULL) vexit(-1);
+ 			while (tmpalias != NULL ) {
+ 				printf("%s@%s -> %s\n", Alias, Email, tmpalias);
